@@ -9,8 +9,9 @@ RUN echo "Asia/Shanghai" >> /etc/timezone
 #Install MariaDB
 RUN apt-get update && apt-get -y install mariadb-server supervisor; mkdir -p /var/log/supervisor
 
-ADD sql/*              /opt/
-ADD mariadb.conf       /etc/supervisor/conf.d/mariadb.conf
+ADD sql/*               /opt/
+ADD /conf/my.cnf        /opt/
+ADD /conf/mariadb.conf  /etc/supervisor/conf.d/mariadb.conf
 
 #update mysql database
 RUN /etc/init.d/mysql start &&\
@@ -18,8 +19,7 @@ RUN /etc/init.d/mysql start &&\
     mysql -uroot -p123456 mysql < /opt/ppgo_amaze.sql &&\
     mysql -uroot -p123456 mysql < /opt/000000.sql &&\
     mysql -uroot -p123456 mysql < /opt/600000.sql &&\
-    mysql -uroot -p123456 mysql < /opt/300000.sql 
-
+    mysql -uroot -p123456 mysql < /opt/300000.sql
 
 # Define mountable directories.
 VOLUME ["/etc/mysql", "/var/lib/mysql"]

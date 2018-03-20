@@ -8,18 +8,19 @@
 FROM ubuntu:14.04.4
 
 # Install MariaDB.
+ADD conf/my.cnf /opt/
 RUN \
   apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0xcbcb082a1bb943db && \
   echo "deb http://mariadb.mirror.iweb.com/repo/10.0/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/mariadb.list && \
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server && \
   rm -rf /var/lib/apt/lists/* && \
-  sed -i 's/^\(bind-address\s.*\)/# \1/' /etc/mysql/my.cnf && \
+  rm -rf /etc/mysql/my.cnf && \
+  cp /opt/my.cnf /etc/mysql/my.cnf && \
   echo "mysqld_safe &" > /tmp/config && \
   echo "mysqladmin -u root password '123456' --silent --wait=30 ping || exit 1" >> /tmp/config && \
   echo "mysql -e 'GRANT ALL PRIVILEGES ON *.* TO \"root\"@\"%\" IDENTIFIED BY \"123456\" WITH GRANT OPTION;'" >> /tmp/config && \
-  bash /tmp/config && \
-  rm -f /tmp/config
+  bash /tmp/config
 
 # Define mountable directories.
 VOLUME ["/etc/mysql", "/var/lib/mysql"]
