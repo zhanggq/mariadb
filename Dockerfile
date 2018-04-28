@@ -1,35 +1,24 @@
-#
-# MariaDB Dockerfile
-#
-# https://github.com/dockerfile/mariadb
-#
-
-# Pull base image.
 FROM ubuntu:14.04.4
 
-# Install MariaDB.
-ADD conf/my.cnf /opt/
-RUN \
-  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0xcbcb082a1bb943db && \
-  echo "deb http://mariadb.mirror.iweb.com/repo/10.0/ubuntu `lsb_release -cs` main" > /etc/apt/sources.list.d/mariadb.list && \
-  apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-server && \
-  rm -rf /var/lib/apt/lists/* && \
-  rm -rf /etc/mysql/my.cnf && \
-  cp /opt/my.cnf /etc/mysql/my.cnf && \
-  echo "mysqld_safe &" > /tmp/config && \
-  echo "mysqladmin -u root password '123456' --silent --wait=30 ping || exit 1" >> /tmp/config && \
-  echo "mysql -e 'GRANT ALL PRIVILEGES ON *.* TO \"root\"@\"%\" IDENTIFIED BY \"123456\" WITH GRANT OPTION;'" >> /tmp/config && \
-  bash /tmp/config
+RUN apt-get update && apt-get install -y wget
+
+#update system timezone
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo "Asia/Shanghai" >> /etc/timezone
+
+#Install MariaDB
+RUN apt-get update && apt-get -y install mariadb-server supervisor; mkdir -p /var/log/supervisor
+
+ADD sql/*               /opt/
+ADD /conf/my.cnf        /opt/
+ADD /conf/mariadb.conf  /etc/supervisor/conf.d/mariadb.conf
+
+#update mysql database
+RUN /etc/init.d/mysql start &&\
+    mysqladmin -u root password "123456" &&\
+    mysql -uroot -p123456 mysql < /opt/initDatabase.sql
 
 # Define mountable directories.
 VOLUME ["/etc/mysql", "/var/lib/mysql"]
-
-# Define working directory.
-WORKDIR /data
-
-# Define default command.
-CMD ["mysqld_safe"]
-
-# Expose ports.
+CMD ["/usr/bin/supervisord"]
 EXPOSE 3306
