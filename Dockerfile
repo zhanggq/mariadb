@@ -16,7 +16,10 @@ ADD /conf/mariadb.conf  /etc/supervisor/conf.d/mariadb.conf
 #update mysql database
 RUN /etc/init.d/mysql start &&\
     mysqladmin -u root password "123456" &&\
-    mysql -uroot -p123456 mysql < /opt/initDatabase.sql
+    mysql -uroot -p123456 mysql < /opt/ppgo_amaze.sql &&\
+    mysql -uroot -p123456 mysql < /opt/000000.sql &&\
+    mysql -uroot -p123456 mysql < /opt/600000.sql &&\
+    mysql -uroot -p123456 mysql < /opt/300000.sql
 
 # Define mountable directories.
 VOLUME ["/etc/mysql", "/var/lib/mysql"]
