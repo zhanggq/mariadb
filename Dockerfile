@@ -1,24 +1,22 @@
-FROM ubuntu:14.04.4
+FROM docker-registry:5000/library/hcs-base:latest
 
-RUN apt-get update && apt-get install -y wget
+# generate repo
+ADD ./repo/Mariadb.repo /etc/yum.repos.d/
 
-#update system timezone
-RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-RUN echo "Asia/Shanghai" >> /etc/timezone
+# install MariaDB-Galera
+RUN yum install -y MariaDB-server MariaDB-common MariaDB-shared MariaDB-client MariaDB-Galera-server MariaDB-devel; \
+    yum clean all;
 
-#Install MariaDB
-RUN apt-get update && apt-get -y install mariadb-server supervisor; mkdir -p /var/log/supervisor
-
-ADD sql/*               /opt/
-ADD /conf/my.cnf        /opt/
-ADD /conf/mariadb.conf  /etc/supervisor/conf.d/mariadb.conf
-
-#update mysql database
-RUN /etc/init.d/mysql start &&\
-    mysqladmin -u root password "123456" &&\
-    mysql -uroot -p123456 mysql < /opt/initDatabase.sql
+# initialize
+ADD ./sql/*              /opt/
+ADD ./conf/my.cnf        /opt/
+RUN /etc/init.d/mysql start; \
+    mysqladmin -u root password '123456'; \
+    mysql -uroot -p123456 mysql < /opt/initDatabase.sql; \
+    /etc/init.d/mysql stop; \
+    rm -rf /etc/my.cnf; mv /opt/my.cnf /etc/; \
+    mkdir /var/log/mariadb; touch /var/log/mariadb/mariadb.log;
 
 # Define mountable directories.
 VOLUME ["/etc/mysql", "/var/lib/mysql"]
-CMD ["/usr/bin/supervisord"]
 EXPOSE 3306

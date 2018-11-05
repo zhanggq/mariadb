@@ -1,0 +1,6 @@
+[Mariadb]
+name = MariaDB
+baseurl = http://172.16.45.198/MariaDB/Mariadb.10.1.32
+enabled=1
+priority=1
+gpgcheck=0

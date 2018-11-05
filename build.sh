@@ -1,6 +1,11 @@
 #!/bin/bash
 
-IMAGE=mariadb.base:v10.1
+name="mariadb-ga"
+tag="10.1.32"
+dockerfile="Dockerfile"
 
-echo Building $IMAGE
-docker build -f Dockerfile -t $IMAGE ./
+build_img(){
+    echo -e "[Start to build image]\nname:$name\ntag:$tag"
+    docker build -t "$name:$tag" . < $dockerfile
+}
+build_img
