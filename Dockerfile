@@ -9,14 +9,18 @@ RUN echo "Asia/Shanghai" >> /etc/timezone
 #Install MariaDB
 RUN apt-get update && apt-get -y install mariadb-server supervisor; mkdir -p /var/log/supervisor
 
-ADD sql/*               /opt/
-ADD /conf/my.cnf        /opt/
-ADD /conf/mariadb.conf  /etc/supervisor/conf.d/mariadb.conf
+ADD sql/*                /opt/
+ADD ./conf/my.cnf        /opt/
+ADD ./conf/mariadb.conf  /etc/supervisor/conf.d/mariadb.conf
+ADD ./scripts/hcs-start  /usr/bin/hcs-start
 
 #update mysql database
 RUN /etc/init.d/mysql start &&\
     mysqladmin -u root password "123456" &&\
-    mysql -uroot -p123456 mysql < /opt/initDatabase.sql
+    mysql -uroot -p123456 mysql < /opt/initDatabase.sql &&\
+    /etc/init.d/mysql stop &&\
+    cp -R -a /var/lib/mysql /var/lib/mysql_bak &&\
+    chmod 777 /usr/bin/hcs-start
 
 # Define mountable directories.
 VOLUME ["/etc/mysql", "/var/lib/mysql"]
