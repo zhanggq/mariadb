@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#set -ex
+FlagFile="/root/.csos-init-done"
+if [ -f "$FlagFile" ];then
+exit
+fi
+
+touch $FlagFile
+
+rm -rf /var/lib/mysql/*
+chown mysql:mysql /var/lib/mysql
+mv /var/lib/mysql_bak/* /var/lib/mysql/

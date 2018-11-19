@@ -1,5 +1,7 @@
 ﻿DROP DATABASE IF EXISTS hcs;
 CREATE DATABASE hcs DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+grant all privileges on hcs.* to hcs@localhost identified by 'hcs' with grant option;
+grant all privileges on hcs.* to 'hcs'@'%' identified by 'hcs' with grant option;
 USE hcs;
 
 SET NAMES utf8;
