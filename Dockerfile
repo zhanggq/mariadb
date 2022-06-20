@@ -20,6 +20,8 @@ RUN /etc/init.d/mysql start &&\
     mysql -uroot -p123456 mysql < /opt/initDatabase.sql &&\
     /etc/init.d/mysql stop &&\
     cp -R -a /var/lib/mysql /var/lib/mysql_bak &&\
+    mv /etc/mysql/my.cnf /etc/mysql/my.cnf.bak &&\
+    mv /opt/my.cnf /etc/mysql/ &&\
     chmod 777 /usr/bin/hcs-start
 
 # Define mountable directories.
